@@ -4,5 +4,4 @@ numpy
 tqdm
 pyyaml
 matplotlib
-wget
 linear_attention_transformer
