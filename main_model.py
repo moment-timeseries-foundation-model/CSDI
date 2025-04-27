@@ -248,33 +248,6 @@ class CSDIBaseModel(nn.Module):
         return samples, observed_data, target_mask, observed_mask, observed_tp
 
 
-class CSDIModelPM25(CSDIBaseModel):
-    def __init__(self, config, device, target_dim=36):
-        super(CSDIModelPM25, self).__init__(target_dim, config, device)
-
-    def process_data(self, batch):
-        observed_data = batch["observed_data"].to(self.device).float()
-        observed_mask = batch["observed_mask"].to(self.device).float()
-        observed_tp = batch["timepoints"].to(self.device).float()
-        gt_mask = batch["gt_mask"].to(self.device).float()
-        cut_length = batch["cut_length"].to(self.device).long()
-        for_pattern_mask = batch["hist_mask"].to(self.device).float()
-
-        observed_data = observed_data.permute(0, 2, 1)
-        observed_mask = observed_mask.permute(0, 2, 1)
-        gt_mask = gt_mask.permute(0, 2, 1)
-        for_pattern_mask = for_pattern_mask.permute(0, 2, 1)
-
-        return (
-            observed_data,
-            observed_mask,
-            observed_tp,
-            gt_mask,
-            for_pattern_mask,
-            cut_length,
-        )
-
-
 class CSDIModelPhysio(CSDIBaseModel):
     def __init__(self, config, device, target_dim=35):
         super(CSDIModelPhysio, self).__init__(target_dim, config, device)
@@ -299,4 +272,18 @@ class CSDIModelPhysio(CSDIBaseModel):
             gt_mask,
             for_pattern_mask,
             cut_length,
+        )
+
+
+class CSDIModelPM25(CSDIBaseModel):
+    """
+    A specialized model class for processing PM2.5 data, inheriting from the CSDIBaseModel.
+    """
+
+    def __init__(self, config, device, target_dim):
+        super(CSDIModelPM25, self).__init__(target_dim, config, device)
+
+    def process_data(self, batch):
+        raise NotImplementedError(
+            "The process_data method is not implemented for the PM2.5 model."
         )
