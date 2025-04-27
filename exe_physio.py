@@ -1,5 +1,4 @@
 import argparse
-import torch
 import datetime
 import json
 import yaml
@@ -10,16 +9,43 @@ from dataset_physio import get_dataloader
 from utils import train, evaluate
 
 parser = argparse.ArgumentParser(description="CSDI")
-parser.add_argument("--config", type=str, default="base.yaml")
-parser.add_argument("--device", default="cuda:0", help="Device for Attack")
-parser.add_argument("--seed", type=int, default=1)
-parser.add_argument("--testmissingratio", type=float, default=0.1)
 parser.add_argument(
-    "--nfold", type=int, default=0, help="for 5fold test (valid value:[0-4])"
+    "--config",
+    type=str,
+    default="base.yaml",
+    help="Path to the configuration file (YAML format).",
 )
-parser.add_argument("--unconditional", action="store_true")
-parser.add_argument("--modelfolder", type=str, default="")
-parser.add_argument("--nsample", type=int, default=100)
+parser.add_argument(
+    "--device",
+    default="cuda:0",
+    help="Device to use for computation (e.g., 'cuda:0' or 'cpu').",
+)
+parser.add_argument(
+    "--seed", type=int, default=1, help="Random seed for reproducibility."
+)
+parser.add_argument(
+    "--testmissingratio",
+    type=float,
+    default=0.1,
+    help="Ratio of missing data during testing.",
+)
+parser.add_argument(
+    "--nfold",
+    type=int,
+    default=0,
+    help="Fold index for 5-fold cross-validation (valid values: [0-4]).",
+)
+parser.add_argument(
+    "--unconditional",
+    action="store_true",
+    help="Flag to indicate if the model is unconditional.",
+)
+parser.add_argument(
+    "--nsample",
+    type=int,
+    default=100,
+    help="Number of samples to generate during evaluation.",
+)
 
 args = parser.parse_args()
 print(args)
@@ -49,15 +75,14 @@ train_loader, valid_loader, test_loader = get_dataloader(
 
 model = CSDIModelPhysio(config, args.device).to(args.device)
 
-if args.modelfolder == "":
-    train(
-        model,
-        config["train"],
-        train_loader,
-        valid_loader=valid_loader,
-        foldername=foldername,
-    )
-else:
-    model.load_state_dict(torch.load("./save/" + args.modelfolder + "/model.pth"))
+# Train the model
+train(
+    model,
+    config["train"],
+    train_loader,
+    valid_loader=valid_loader,
+    foldername=foldername,
+)
 
+# Evaluate the model on the test set
 evaluate(model, test_loader, nsample=args.nsample, scaler=1, foldername=foldername)
