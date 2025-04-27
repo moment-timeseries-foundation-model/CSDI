@@ -276,24 +276,6 @@ class CSDIModelPM25(CSDIBaseModel):
 
 
 class CSDIModelPhysio(CSDIBaseModel):
-    """
-    A model class for Conditional Score-based Diffusion Model (CSDI) tailored for physiological data.
-
-    This class inherits from the CSDIBaseModel and is designed to handle physiological data with a
-    specified
-    target dimensionality. It includes methods for processing input data batches.
-
-    Attributes:
-        config (dict): Configuration dictionary containing model hyperparameters and settings.
-        device (torch.device): The device (CPU or GPU) on which the model will run.
-        target_dim (int): The dimensionality of the target data. Defaults to 35.
-
-    Methods:
-        process_data(batch):
-            Processes a batch of input data, including observed data, masks, and timepoints, and prepares
-            it for model training or inference.
-    """
-
     def __init__(self, config, device, target_dim=35):
         super(CSDIModelPhysio, self).__init__(target_dim, config, device)
 
