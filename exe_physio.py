@@ -5,13 +5,13 @@ import json
 import yaml
 import os
 
-from main_model import CSDI_Physio
+from main_model import CSDIModelPhysio
 from dataset_physio import get_dataloader
 from utils import train, evaluate
 
 parser = argparse.ArgumentParser(description="CSDI")
 parser.add_argument("--config", type=str, default="base.yaml")
-parser.add_argument('--device', default='cuda:0', help='Device for Attack')
+parser.add_argument("--device", default="cuda:0", help="Device for Attack")
 parser.add_argument("--seed", type=int, default=1)
 parser.add_argument("--testmissingratio", type=float, default=0.1)
 parser.add_argument(
@@ -35,7 +35,7 @@ print(json.dumps(config, indent=4))
 
 current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 foldername = "./save/physio_fold" + str(args.nfold) + "_" + current_time + "/"
-print('model folder:', foldername)
+print("model folder:", foldername)
 os.makedirs(foldername, exist_ok=True)
 with open(foldername + "config.json", "w") as f:
     json.dump(config, f, indent=4)
@@ -47,7 +47,7 @@ train_loader, valid_loader, test_loader = get_dataloader(
     missing_ratio=config["model"]["test_missing_ratio"],
 )
 
-model = CSDI_Physio(config, args.device).to(args.device)
+model = CSDIModelPhysio(config, args.device).to(args.device)
 
 if args.modelfolder == "":
     train(

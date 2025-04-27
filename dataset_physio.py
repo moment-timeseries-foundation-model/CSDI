@@ -7,10 +7,43 @@ import pandas as pd
 from torch.utils.data import DataLoader, Dataset
 
 # 35 attributes which contains enough non-values
-attributes = ['DiasABP', 'HR', 'Na', 'Lactate', 'NIDiasABP', 'PaO2', 'WBC', 'pH', 'Albumin', 'ALT', 'Glucose', 'SaO2',
-              'Temp', 'AST', 'Bilirubin', 'HCO3', 'BUN', 'RespRate', 'Mg', 'HCT', 'SysABP', 'FiO2', 'K', 'GCS',
-              'Cholesterol', 'NISysABP', 'TroponinT', 'MAP', 'TroponinI', 'PaCO2', 'Platelets', 'Urine', 'NIMAP',
-              'Creatinine', 'ALP']
+attributes = [
+    "DiasABP",
+    "HR",
+    "Na",
+    "Lactate",
+    "NIDiasABP",
+    "PaO2",
+    "WBC",
+    "pH",
+    "Albumin",
+    "ALT",
+    "Glucose",
+    "SaO2",
+    "Temp",
+    "AST",
+    "Bilirubin",
+    "HCO3",
+    "BUN",
+    "RespRate",
+    "Mg",
+    "HCT",
+    "SysABP",
+    "FiO2",
+    "K",
+    "GCS",
+    "Cholesterol",
+    "NISysABP",
+    "TroponinT",
+    "MAP",
+    "TroponinI",
+    "PaCO2",
+    "Platelets",
+    "Urine",
+    "NIMAP",
+    "Creatinine",
+    "ALP",
+]
 
 
 def extract_hour(x):
@@ -70,7 +103,7 @@ def get_idlist():
     return patient_id
 
 
-class Physio_Dataset(Dataset):
+class PhysioDataset(Dataset):
     def __init__(self, eval_length=48, use_index_list=None, missing_ratio=0.0, seed=0):
         self.eval_length = eval_length
         np.random.seed(seed)  # seed for ground truth choice
@@ -82,7 +115,7 @@ class Physio_Dataset(Dataset):
             "./data/physio_missing" + str(missing_ratio) + "_seed" + str(seed) + ".pk"
         )
 
-        if os.path.isfile(path) == False:  # if datasetfile is none, create
+        if not os.path.isfile(path):  # if datasetfile is none, create
             idlist = get_idlist()
             for id_ in idlist:
                 try:
@@ -142,9 +175,8 @@ class Physio_Dataset(Dataset):
 
 
 def get_dataloader(seed=1, nfold=None, batch_size=16, missing_ratio=0.1):
-
     # only to obtain total length of dataset
-    dataset = Physio_Dataset(missing_ratio=missing_ratio, seed=seed)
+    dataset = PhysioDataset(missing_ratio=missing_ratio, seed=seed)
     indlist = np.arange(len(dataset))
 
     np.random.seed(seed)
@@ -162,15 +194,15 @@ def get_dataloader(seed=1, nfold=None, batch_size=16, missing_ratio=0.1):
     train_index = remain_index[:num_train]
     valid_index = remain_index[num_train:]
 
-    dataset = Physio_Dataset(
+    dataset = PhysioDataset(
         use_index_list=train_index, missing_ratio=missing_ratio, seed=seed
     )
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=1)
-    valid_dataset = Physio_Dataset(
+    valid_dataset = PhysioDataset(
         use_index_list=valid_index, missing_ratio=missing_ratio, seed=seed
     )
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=0)
-    test_dataset = Physio_Dataset(
+    test_dataset = PhysioDataset(
         use_index_list=test_index, missing_ratio=missing_ratio, seed=seed
     )
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=0)

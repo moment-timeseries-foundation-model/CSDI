@@ -2,14 +2,12 @@ import tarfile
 import zipfile
 import sys
 import os
-import wget
-import requests
 import pandas as pd
 import pickle
 
 os.makedirs("data/", exist_ok=True)
 if sys.argv[1] == "physio":
-    url = "https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz?download"    
+    url = "https://physionet.org/files/challenge-2012/1.0.0/set-a.tar.gz?download"
     os.system(f"cd data && curl -L -o physio.gz {url}")
     with tarfile.open("data/physio.gz", "r:gz") as t:
         t.extractall(path="data/physio")
@@ -22,7 +20,7 @@ elif sys.argv[1] == "pm25":
     with zipfile.ZipFile("data/STMVL-Release.zip") as z:
         z.extractall("data/pm25")
     os.system("rm data/STMVL-Release.zip")
-        
+
     def create_normalizer_pm25():
         df = pd.read_csv(
             "./data/pm25/Code/STMVL/SampleData/pm25_ground.txt",
@@ -37,4 +35,5 @@ elif sys.argv[1] == "pm25":
         path = "./data/pm25/pm25_meanstd.pk"
         with open(path, "wb") as f:
             pickle.dump([mean, std], f)
+
     create_normalizer_pm25()

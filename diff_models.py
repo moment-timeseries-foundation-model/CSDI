@@ -11,16 +11,17 @@ def get_torch_trans(heads=8, layers=1, channels=64):
     )
     return nn.TransformerEncoder(encoder_layer, num_layers=layers)
 
-def get_linear_trans(heads=8,layers=1,channels=64,localheads=0,localwindow=0):
 
-  return LinearAttentionTransformer(
-        dim = channels,
-        depth = layers,
-        heads = heads,
-        max_seq_len = 256,
-        n_local_attn_heads = 0, 
-        local_attn_window_size = 0,
+def get_linear_trans(heads=8, layers=1, channels=64, localheads=0, localwindow=0):
+    return LinearAttentionTransformer(
+        dim=channels,
+        depth=layers,
+        heads=heads,
+        max_seq_len=256,
+        n_local_attn_heads=0,
+        local_attn_window_size=0,
     )
+
 
 def Conv1d_with_init(in_channels, out_channels, kernel_size):
     layer = nn.Conv1d(in_channels, out_channels, kernel_size)
@@ -51,13 +52,15 @@ class DiffusionEmbedding(nn.Module):
 
     def _build_embedding(self, num_steps, dim=64):
         steps = torch.arange(num_steps).unsqueeze(1)  # (T,1)
-        frequencies = 10.0 ** (torch.arange(dim) / (dim - 1) * 4.0).unsqueeze(0)  # (1,dim)
+        frequencies = 10.0 ** (torch.arange(dim) / (dim - 1) * 4.0).unsqueeze(
+            0
+        )  # (1,dim)
         table = steps * frequencies  # (T,dim)
         table = torch.cat([torch.sin(table), torch.cos(table)], dim=1)  # (T,dim*2)
         return table
 
 
-class diff_CSDI(nn.Module):
+class DiffCSDI(nn.Module):
     def __init__(self, config, inputdim=2):
         super().__init__()
         self.channels = config["channels"]
@@ -110,7 +113,9 @@ class diff_CSDI(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, side_dim, channels, diffusion_embedding_dim, nheads, is_linear=False):
+    def __init__(
+        self, side_dim, channels, diffusion_embedding_dim, nheads, is_linear=False
+    ):
         super().__init__()
         self.diffusion_projection = nn.Linear(diffusion_embedding_dim, channels)
         self.cond_projection = Conv1d_with_init(side_dim, 2 * channels, 1)
@@ -119,12 +124,17 @@ class ResidualBlock(nn.Module):
 
         self.is_linear = is_linear
         if is_linear:
-            self.time_layer = get_linear_trans(heads=nheads,layers=1,channels=channels)
-            self.feature_layer = get_linear_trans(heads=nheads,layers=1,channels=channels)
+            self.time_layer = get_linear_trans(
+                heads=nheads, layers=1, channels=channels
+            )
+            self.feature_layer = get_linear_trans(
+                heads=nheads, layers=1, channels=channels
+            )
         else:
             self.time_layer = get_torch_trans(heads=nheads, layers=1, channels=channels)
-            self.feature_layer = get_torch_trans(heads=nheads, layers=1, channels=channels)
-
+            self.feature_layer = get_torch_trans(
+                heads=nheads, layers=1, channels=channels
+            )
 
     def forward_time(self, y, base_shape):
         B, channel, K, L = base_shape
@@ -138,7 +148,6 @@ class ResidualBlock(nn.Module):
             y = self.time_layer(y.permute(2, 0, 1)).permute(1, 2, 0)
         y = y.reshape(B, K, channel, L).permute(0, 2, 1, 3).reshape(B, channel, K * L)
         return y
-
 
     def forward_feature(self, y, base_shape):
         B, channel, K, L = base_shape
@@ -157,7 +166,9 @@ class ResidualBlock(nn.Module):
         base_shape = x.shape
         x = x.reshape(B, channel, K * L)
 
-        diffusion_emb = self.diffusion_projection(diffusion_emb).unsqueeze(-1)  # (B,channel,1)
+        diffusion_emb = self.diffusion_projection(diffusion_emb).unsqueeze(
+            -1
+        )  # (B,channel,1)
         y = x + diffusion_emb
 
         y = self.forward_time(y, base_shape)

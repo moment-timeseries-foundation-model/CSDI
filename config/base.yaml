@@ -9,8 +9,8 @@ train:
 
 
 diffusion:
-  layers: 4 
-  channels: 64 
+  layers: 4
+  channels: 64
   nheads: 8
   diffusion_embedding_dim: 128
   beta_start: 0.0001

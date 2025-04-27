@@ -85,7 +85,6 @@ def calc_denominator(target, eval_points):
 
 
 def calc_quantile_CRPS(target, forecast, eval_points, mean_scaler, scaler):
-
     target = target * scaler + mean_scaler
     forecast = forecast * scaler + mean_scaler
 
@@ -101,8 +100,8 @@ def calc_quantile_CRPS(target, forecast, eval_points, mean_scaler, scaler):
         CRPS += q_loss / denom
     return CRPS.item() / len(quantiles)
 
-def calc_quantile_CRPS_sum(target, forecast, eval_points, mean_scaler, scaler):
 
+def calc_quantile_CRPS_sum(target, forecast, eval_points, mean_scaler, scaler):
     eval_points = eval_points.mean(-1)
     target = target * scaler + mean_scaler
     target = target.sum(-1)
@@ -112,13 +111,13 @@ def calc_quantile_CRPS_sum(target, forecast, eval_points, mean_scaler, scaler):
     denom = calc_denominator(target, eval_points)
     CRPS = 0
     for i in range(len(quantiles)):
-        q_pred = torch.quantile(forecast.sum(-1),quantiles[i],dim=1)
+        q_pred = torch.quantile(forecast.sum(-1), quantiles[i], dim=1)
         q_loss = quantile_loss(target, q_pred, quantiles[i], eval_points)
         CRPS += q_loss / denom
     return CRPS.item() / len(quantiles)
 
-def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldername=""):
 
+def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldername=""):
     with torch.no_grad():
         model.eval()
         mse_total = 0
@@ -135,8 +134,8 @@ def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldernam
                 output = model.evaluate(test_batch, nsample)
 
                 samples, c_target, eval_points, observed_points, observed_time = output
-                samples = samples.permute(0, 1, 3, 2)  # (B,nsample,L,K)
-                c_target = c_target.permute(0, 2, 1)  # (B,L,K)
+                samples = samples.permute(0, 1, 3, 2)  # (B, nsample, L, K)
+                c_target = c_target.permute(0, 2, 1)  # (B, L, K)
                 eval_points = eval_points.permute(0, 2, 1)
                 observed_points = observed_points.permute(0, 2, 1)
 
@@ -149,9 +148,9 @@ def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldernam
 
                 mse_current = (
                     ((samples_median.values - c_target) * eval_points) ** 2
-                ) * (scaler ** 2)
+                ) * (scaler**2)
                 mae_current = (
-                    torch.abs((samples_median.values - c_target) * eval_points) 
+                    torch.abs((samples_median.values - c_target) * eval_points)
                 ) * scaler
 
                 mse_total += mse_current.sum().item()
@@ -196,9 +195,7 @@ def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldernam
                 all_target, all_generated_samples, all_evalpoint, mean_scaler, scaler
             )
 
-            with open(
-                foldername + "/result_nsample" + str(nsample) + ".pk", "wb"
-            ) as f:
+            with open(foldername + "/result_nsample" + str(nsample) + ".pk", "wb") as f:
                 pickle.dump(
                     [
                         np.sqrt(mse_total / evalpoints_total),
