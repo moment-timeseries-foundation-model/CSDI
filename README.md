@@ -1,48 +1,82 @@
-# CSDI
-This is the github repository for the NeurIPS 2021 paper "[CSDI: Conditional Score-based Diffusion Models for Probabilistic Time Series Imputation](https://arxiv.org/abs/2107.03502)".
+# CSDI: Conditional Score-based Diffusion Models for Probabilistic Time Series Imputation
 
-## Requirement
+Official implementation of the paper "[CSDI: Conditional Score-based Diffusion Models for Probabilistic Time Series Imputation](https://arxiv.org/abs/2107.03502)" published in NeurIPS 2021.
 
-Please install the packages in requirements.txt
+CSDI is a novel diffusion model for probabilistic time series imputation that can:
+- Handle irregular time intervals
+- Process multivariate time series data
+- Incorporate uncertainty estimates
+- Condition on available observations
 
-## Preparation
-### Download the healthcare dataset
-```shell
+## Installation
+
+### Requirements
+
+Install the required packages with pip:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Dataset Preparation
+
+The repository supports experiments on two datasets:
+
+### Healthcare Dataset (PhysioNet)
+
+Download and preprocess the healthcare dataset with:
+
+```bash
 python download.py physio
 ```
-### Download the air quality dataset
-```shell
+
+### Air Quality Dataset (PM2.5)
+
+Download and preprocess the air quality dataset with:
+
+```bash
 python download.py pm25
 ```
 
 ## Experiments
 
-### training and imputation for the healthcare dataset
-```shell
-python exe_physio.py --testmissingratio [missing ratio] --nsample [number of samples]
+### Healthcare Dataset (PhysioNet)
+
+#### Training and Imputation
+
+To train a new model and run imputation on the healthcare dataset:
+
+```bash
+python exe_physio.py --testmissingratio [missing_ratio] --nsample [number_of_samples]
 ```
 
-### imputation for the healthcare dataset with pretrained model
-```shell
-python exe_physio.py --modelfolder pretrained --testmissingratio [missing ratio] --nsample [number of samples]
+Parameters:
+- `missing_ratio`: Ratio of missing values in test data (e.g., 0.1, 0.5)
+- `number_of_samples`: Number of samples to generate for each missing value
+
+### Air Quality Dataset (PM2.5)
+
+To train and run imputation on the air quality dataset:
+
+```bash
+python exe_pm25.py --nsample [number_of_samples]
 ```
 
-### training and imputation for the healthcare dataset
-```shell
-python exe_pm25.py --nsample [number of samples]
-```
+## Results Visualization
 
-### Visualize results
-'visualize_examples.ipynb' is a notebook for visualizing results.
+Use the Jupyter notebook `visualize_examples.ipynb` to visualize imputation results and uncertainty estimates.
 
 ## Acknowledgements
 
-A part of the codes is based on [BRITS](https://github.com/caow13/BRITS) and [DiffWave](https://github.com/lmnt-com/diffwave)
+Parts of this implementation are based on:
+- [BRITS](https://github.com/caow13/BRITS) (Bidirectional Recurrent Imputation for Time Series)
+- [DiffWave](https://github.com/lmnt-com/diffwave) (Neural vocoder based on diffusion probabilistic models)
 
 ## Citation
+
 If you use this code for your research, please cite our paper:
 
-```
+```bibtex
 @inproceedings{tashiro2021csdi,
   title={CSDI: Conditional Score-based Diffusion Models for Probabilistic Time Series Imputation},
   author={Tashiro, Yusuke and Song, Jiaming and Song, Yang and Ermon, Stefano},
@@ -50,3 +84,7 @@ If you use this code for your research, please cite our paper:
   year={2021}
 }
 ```
+
+## License
+
+[MIT License](LICENSE)
